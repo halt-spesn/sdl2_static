@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     env:
       ANDROID_NDK_VERSION: r26c
       SDL2_VERSION: 2.30.0
@@ -19,24 +19,24 @@ jobs:
       SDL2_TTF_VERSION: 2.22.0
       ANDROID_ABI: arm64-v8a
       ANDROID_API_LEVEL: 21
-      
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
-        
+
     - name: Setup Android NDK
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
         ndk-version: ${{ env.ANDROID_NDK_VERSION }}
         add-to-path: true
-        
+
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -47,13 +47,13 @@ jobs:
           wget \
           unzip \
           tar
-          
+
     - name: Create build directories
       run: |
         mkdir -p build/downloads
         mkdir -p build/output/lib
         mkdir -p build/output/include
-        
+
     - name: Download SDL2 sources
       run: |
         cd build/downloads
@@ -61,7 +61,7 @@ jobs:
         wget -q https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL2_IMAGE_VERSION}/SDL2_image-${SDL2_IMAGE_VERSION}.tar.gz
         wget -q https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL2_MIXER_VERSION}/SDL2_mixer-${SDL2_MIXER_VERSION}.tar.gz
         wget -q https://github.com/libsdl-org/SDL_ttf/releases/download/release-${SDL2_TTF_VERSION}/SDL2_ttf-${SDL2_TTF_VERSION}.tar.gz
-        
+
     - name: Extract SDL2 sources
       run: |
         cd build/downloads
@@ -69,13 +69,13 @@ jobs:
         tar -xzf SDL2_image-${SDL2_IMAGE_VERSION}.tar.gz
         tar -xzf SDL2_mixer-${SDL2_MIXER_VERSION}.tar.gz
         tar -xzf SDL2_ttf-${SDL2_TTF_VERSION}.tar.gz
-        
+
     - name: Build SDL2
       run: |
         cd build/downloads/SDL2-${SDL2_VERSION}
         mkdir -p build-android
         cd build-android
-        
+
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
@@ -86,16 +86,16 @@ jobs:
           -DSDL_SHARED=OFF \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -GNinja
-          
+
         ninja
         ninja install
-        
+
     - name: Build SDL2_image
       run: |
         cd build/downloads/SDL2_image-${SDL2_IMAGE_VERSION}
         mkdir -p build-android
         cd build-android
-        
+
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
@@ -110,16 +110,16 @@ jobs:
           -DSDL2IMAGE_JPG=ON \
           -DSDL2IMAGE_WEBP=ON \
           -GNinja
-          
+
         ninja
         ninja install
-        
+
     - name: Build SDL2_mixer
       run: |
         cd build/downloads/SDL2_mixer-${SDL2_MIXER_VERSION}
         mkdir -p build-android
         cd build-android
-        
+
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
@@ -135,16 +135,16 @@ jobs:
           -DSDL2MIXER_FLAC=ON \
           -DSDL2MIXER_MP3_MPG123=ON \
           -GNinja
-          
+
         ninja
         ninja install
-        
+
     - name: Build SDL2_ttf
       run: |
         cd build/downloads/SDL2_ttf-${SDL2_TTF_VERSION}
         mkdir -p build-android
         cd build-android
-        
+
         cmake .. \
           -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
@@ -157,10 +157,10 @@ jobs:
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -DSDL2TTF_FREETYPE=ON \
           -GNinja
-          
+
         ninja
         ninja install
-        
+
     - name: List built libraries
       run: |
         echo "=== Built static libraries ==="
@@ -168,19 +168,19 @@ jobs:
         echo ""
         echo "=== Header files ==="
         find build/output/include -name "*.h" -type f | head -20
-        
+
     - name: Package libraries
       run: |
         cd build/output
         tar -czf sdl2-android-arm64-static.tar.gz lib include
-        
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: sdl2-android-arm64-static
         path: build/output/sdl2-android-arm64-static.tar.gz
         retention-days: 90
-        
+
     - name: Upload library files
       uses: actions/upload-artifact@v4
       with:
