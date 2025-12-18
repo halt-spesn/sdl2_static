@@ -137,7 +137,7 @@ jobs:
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
-          -DSDL2MIXER_VORBIS=ON \
+          -DSDL2MIXER_VORBIS=VORBISFILE \
           -DSDL2MIXER_OPUS=ON \
           -DSDL2MIXER_FLAC=ON \
           -DSDL2MIXER_MP3_MPG123=ON \
