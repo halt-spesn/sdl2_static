@@ -15,7 +15,7 @@ The GitHub Actions workflow builds the following libraries as static `.a` files:
 
 - **Architecture**: ARM64-v8a
 - **Android API Level**: 21 (Android 5.0+)
-- **NDK Version**: r26c
+- **NDK Version**: r26c or later (SDL2 2.32.10+ is compatible with NDK r26 and r27+)
 - **Library Type**: Static (.a)
 
 ## Usage
