@@ -89,6 +89,7 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF \
           -DSDL_STATIC=ON \
           -DSDL_SHARED=OFF \
+          -DSDL_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -GNinja
 
@@ -109,6 +110,7 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF \
           -DSDL2IMAGE_STATIC=ON \
           -DSDL2IMAGE_SHARED=OFF \
+          -DSDL2IMAGE_SAMPLES=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
@@ -165,6 +167,7 @@ jobs:
           -DBUILD_SHARED_LIBS=OFF \
           -DSDL2TTF_STATIC=ON \
           -DSDL2TTF_SHARED=OFF \
+          -DSDL2TTF_SAMPLES=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
