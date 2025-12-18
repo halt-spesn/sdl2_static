@@ -11,6 +11,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     env:
       ANDROID_NDK_VERSION: r26c
       SDL2_VERSION: 2.30.0
