@@ -110,6 +110,7 @@ jobs:
           -DSDL2IMAGE_STATIC=ON \
           -DSDL2IMAGE_SHARED=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
+          -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -DSDL2IMAGE_PNG=ON \
           -DSDL2IMAGE_JPG=ON \
@@ -134,6 +135,7 @@ jobs:
           -DSDL2MIXER_STATIC=ON \
           -DSDL2MIXER_SHARED=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
+          -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -DSDL2MIXER_VORBIS=ON \
           -DSDL2MIXER_OPUS=ON \
@@ -159,6 +161,7 @@ jobs:
           -DSDL2TTF_STATIC=ON \
           -DSDL2TTF_SHARED=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
+          -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -DSDL2TTF_FREETYPE=ON \
           -GNinja
