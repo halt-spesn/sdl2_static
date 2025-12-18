@@ -137,10 +137,12 @@ jobs:
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
-          -DSDL2MIXER_VORBIS=VORBISFILE \
-          -DSDL2MIXER_OPUS=ON \
-          -DSDL2MIXER_FLAC=ON \
-          -DSDL2MIXER_MP3_MPG123=ON \
+          -DSDL2MIXER_VENDORED=OFF \
+          -DSDL2MIXER_VORBIS=STB \
+          -DSDL2MIXER_OPUS=OFF \
+          -DSDL2MIXER_FLAC=OFF \
+          -DSDL2MIXER_MP3_MPG123=OFF \
+          -DSDL2MIXER_WAVE=ON \
           -GNinja
 
         ninja
