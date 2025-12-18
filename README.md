@@ -6,10 +6,10 @@ This repository provides automated builds of SDL2 and related libraries as stati
 
 The GitHub Actions workflow builds the following libraries as static `.a` files:
 
-- **SDL2** (v2.30.0) - Core SDL2 library
-- **SDL2_image** (v2.8.2) - Image loading support (PNG, JPEG, WebP)
-- **SDL2_mixer** (v2.8.0) - Audio mixing support (Vorbis, Opus, FLAC, MP3)
-- **SDL2_ttf** (v2.22.0) - TrueType font rendering support
+- **SDL2** (v2.32.10) - Core SDL2 library
+- **SDL2_image** (v2.8.8) - Image loading support (PNG, JPEG, WebP)
+- **SDL2_mixer** (v2.8.1) - Audio mixing support (Vorbis, Opus, FLAC, MP3)
+- **SDL2_ttf** (v2.24.0) - TrueType font rendering support
 
 ## Target Platform
 
