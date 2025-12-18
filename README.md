@@ -1,10 +1,10 @@
-# SDL2 Static Libraries for Android ARM64
+# SDL2 Shared Libraries for Android ARM64
 
-This repository provides automated builds of SDL2 and related libraries as static libraries for Android ARM64 (arm64-v8a) architecture.
+This repository provides automated builds of SDL2 and related libraries as shared libraries for Android ARM64 (arm64-v8a) architecture in JNI-compatible directory structure.
 
 ## Built Libraries
 
-The GitHub Actions workflow builds the following libraries as static `.a` files:
+The GitHub Actions workflow builds the following libraries as shared `.so` files:
 
 - **SDL2** (v2.32.10) - Core SDL2 library
 - **SDL2_image** (v2.8.8) - Image loading support (PNG, JPEG, WebP)
@@ -16,7 +16,23 @@ The GitHub Actions workflow builds the following libraries as static `.a` files:
 - **Architecture**: ARM64-v8a
 - **Android API Level**: 21 (Android 5.0+)
 - **NDK Version**: r26c or later (SDL2 2.32.10+ is compatible with NDK r26 and r27+)
-- **Library Type**: Static (.a)
+- **Library Type**: Shared (.so)
+
+## Output Structure
+
+The build produces libraries organized in a JNI-compatible directory structure:
+
+```
+jniLibs/
+├── arm64-v8a/
+│   ├── libSDL2.so
+│   ├── libSDL2_image.so
+│   ├── libSDL2_mixer.so
+│   └── libSDL2_ttf.so
+└── include/
+    ├── SDL2/
+    └── ...
+```
 
 ## Usage
 
@@ -25,38 +41,48 @@ The GitHub Actions workflow builds the following libraries as static `.a` files:
 1. Go to the [Actions](../../actions) tab
 2. Select the latest successful workflow run
 3. Download the artifacts:
-   - `sdl2-android-arm64-static.tar.gz` - Complete package with libraries and headers
-   - `sdl2-android-arm64-libs` - Separate lib/ and include/ directories
+   - `sdl2-android-arm64-jni.tar.gz` - Complete package with JNI libraries and headers
+   - `sdl2-android-arm64-jniLibs` - JNI directory structure
 
 ### Extract Libraries
 
 ```bash
-tar -xzf sdl2-android-arm64-static.tar.gz
+tar -xzf sdl2-android-arm64-jni.tar.gz
 ```
 
 This will extract:
-- `lib/` - Static library files (*.a)
-- `include/` - Header files
+- `jniLibs/arm64-v8a/` - Shared library files (*.so)
+- `jniLibs/include/` - Header files
 
 ### Using in Your Android Project
 
-#### CMakeLists.txt Example
+#### Option 1: Copy to Android Project
+
+Simply copy the `jniLibs` directory to your Android project:
+
+```bash
+cp -r jniLibs/ /path/to/your/android/app/src/main/jniLibs/
+```
+
+Android will automatically load the `.so` files from the appropriate architecture directory.
+
+#### Option 2: CMakeLists.txt Example
 
 ```cmake
 # Set the path to SDL2 libraries
-set(SDL2_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/sdl2/lib")
-set(SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/sdl2/include")
+set(SDL2_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/arm64-v8a")
+set(SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/include")
 
 # Add include directories
 include_directories(${SDL2_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR}/SDL2)
 
-# Link SDL2 libraries
+# Link SDL2 shared libraries
 target_link_libraries(your_target
-    ${SDL2_DIR}/libSDL2.a
-    ${SDL2_DIR}/libSDL2_image.a
-    ${SDL2_DIR}/libSDL2_mixer.a
-    ${SDL2_DIR}/libSDL2_ttf.a
+    ${SDL2_LIB_DIR}/libSDL2.so
+    ${SDL2_LIB_DIR}/libSDL2_image.so
+    ${SDL2_LIB_DIR}/libSDL2_mixer.so
+    ${SDL2_LIB_DIR}/libSDL2_ttf.so
     # Android system libraries required by SDL2
     android
     log
@@ -66,7 +92,7 @@ target_link_libraries(your_target
 )
 ```
 
-#### Android.mk Example
+#### Option 3: Android.mk Example
 
 ```makefile
 LOCAL_PATH := $(call my-dir)
@@ -74,36 +100,36 @@ LOCAL_PATH := $(call my-dir)
 # SDL2
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
-LOCAL_SRC_FILES := path/to/sdl2/lib/libSDL2.a
-LOCAL_EXPORT_C_INCLUDES := path/to/sdl2/include
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2.so
+LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
+include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_image
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_image
-LOCAL_SRC_FILES := path/to/sdl2/lib/libSDL2_image.a
-LOCAL_EXPORT_C_INCLUDES := path/to/sdl2/include
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_image.so
+LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
+include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_mixer
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_mixer
-LOCAL_SRC_FILES := path/to/sdl2/lib/libSDL2_mixer.a
-LOCAL_EXPORT_C_INCLUDES := path/to/sdl2/include
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_mixer.so
+LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
+include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_ttf
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_ttf
-LOCAL_SRC_FILES := path/to/sdl2/lib/libSDL2_ttf.a
-LOCAL_EXPORT_C_INCLUDES := path/to/sdl2/include
-include $(PREBUILT_STATIC_LIBRARY)
+LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_ttf.so
+LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
+include $(PREBUILT_SHARED_LIBRARY)
 
 # Your application
 include $(CLEAR_VARS)
 LOCAL_MODULE := your_app
 LOCAL_SRC_FILES := your_source.cpp
-LOCAL_STATIC_LIBRARIES := SDL2 SDL2_image SDL2_mixer SDL2_ttf
+LOCAL_SHARED_LIBRARIES := SDL2 SDL2_image SDL2_mixer SDL2_ttf
 LOCAL_LDLIBS := -llog -landroid -lGLESv1_CM -lGLESv2 -lOpenSLES
 include $(BUILD_SHARED_LIBRARY)
 ```
@@ -113,7 +139,7 @@ include $(BUILD_SHARED_LIBRARY)
 To trigger a build manually:
 
 1. Go to the [Actions](../../actions) tab
-2. Select "Build SDL2 Static Libraries for Android ARM64" workflow
+2. Select "Build SDL2 Shared Libraries for Android ARM64" workflow
 3. Click "Run workflow"
 4. Select the branch and click "Run workflow"
 

@@ -1,4 +1,4 @@
-name: Build SDL2 Static Libraries for Android ARM64
+name: Build SDL2 Shared Libraries for Android ARM64
 
 on:
   push:
@@ -86,9 +86,9 @@ jobs:
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
           -DANDROID_PLATFORM=android-${{ env.ANDROID_API_LEVEL }} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DSDL_STATIC=ON \
-          -DSDL_SHARED=OFF \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDL_STATIC=OFF \
+          -DSDL_SHARED=ON \
           -DSDL_TEST=OFF \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
           -GNinja
@@ -107,9 +107,9 @@ jobs:
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
           -DANDROID_PLATFORM=android-${{ env.ANDROID_API_LEVEL }} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DSDL2IMAGE_STATIC=ON \
-          -DSDL2IMAGE_SHARED=OFF \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDL2IMAGE_STATIC=OFF \
+          -DSDL2IMAGE_SHARED=ON \
           -DSDL2IMAGE_SAMPLES=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
@@ -133,9 +133,9 @@ jobs:
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
           -DANDROID_PLATFORM=android-${{ env.ANDROID_API_LEVEL }} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DSDL2MIXER_STATIC=ON \
-          -DSDL2MIXER_SHARED=OFF \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDL2MIXER_STATIC=OFF \
+          -DSDL2MIXER_SHARED=ON \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
           -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/build/output \
@@ -164,9 +164,9 @@ jobs:
           -DANDROID_ABI=${{ env.ANDROID_ABI }} \
           -DANDROID_PLATFORM=android-${{ env.ANDROID_API_LEVEL }} \
           -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DSDL2TTF_STATIC=ON \
-          -DSDL2TTF_SHARED=OFF \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDL2TTF_STATIC=OFF \
+          -DSDL2TTF_SHARED=ON \
           -DSDL2TTF_SAMPLES=OFF \
           -DCMAKE_PREFIX_PATH=${{ github.workspace }}/build/output \
           -DSDL2_DIR=${{ github.workspace }}/build/output/lib/cmake/SDL2 \
@@ -177,31 +177,45 @@ jobs:
         ninja
         ninja install
 
+    - name: Organize libraries in JNI structure
+      run: |
+        mkdir -p jniLibs/${{ env.ANDROID_ABI }}
+        mkdir -p jniLibs/include
+        
+        # Copy shared libraries
+        cp build/output/lib/libSDL2.so jniLibs/${{ env.ANDROID_ABI }}/
+        cp build/output/lib/libSDL2_image.so jniLibs/${{ env.ANDROID_ABI }}/
+        cp build/output/lib/libSDL2_mixer.so jniLibs/${{ env.ANDROID_ABI }}/
+        cp build/output/lib/libSDL2_ttf.so jniLibs/${{ env.ANDROID_ABI }}/
+        
+        # Copy headers
+        cp -r build/output/include/* jniLibs/include/
+        
+        echo "=== JNI Libraries Structure ==="
+        tree jniLibs/ || find jniLibs/ -type f
+
     - name: List built libraries
       run: |
-        echo "=== Built static libraries ==="
-        find build/output/lib -name "*.a" -type f
+        echo "=== Built shared libraries ==="
+        find jniLibs/${{ env.ANDROID_ABI }} -name "*.so" -type f
         echo ""
         echo "=== Header files ==="
-        find build/output/include -name "*.h" -type f | head -20
+        find jniLibs/include -name "*.h" -type f | head -20
 
     - name: Package libraries
       run: |
-        cd build/output
-        tar -czf sdl2-android-arm64-static.tar.gz lib include
+        tar -czf sdl2-android-arm64-jni.tar.gz jniLibs/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: sdl2-android-arm64-static
-        path: build/output/sdl2-android-arm64-static.tar.gz
+        name: sdl2-android-arm64-jni
+        path: sdl2-android-arm64-jni.tar.gz
         retention-days: 90
 
     - name: Upload library files
       uses: actions/upload-artifact@v4
       with:
-        name: sdl2-android-arm64-libs
-        path: |
-          build/output/lib/
-          build/output/include/
+        name: sdl2-android-arm64-jniLibs
+        path: jniLibs/
         retention-days: 90
