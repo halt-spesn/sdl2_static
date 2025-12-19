@@ -1,0 +1,51 @@
+# Build directories
+build/
+dist/
+out/
+
+# Downloaded sources
+*.tar.gz
+*.zip
+
+# Android specific
+*.apk
+*.ap_
+*.dex
+*.class
+local.properties
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Static libraries (except for release artifacts)
+*.a
+*.lib
+
+# Shared libraries
+*.so
+*.dylib
+*.dll
+
+# Object files
+*.o
+*.obj
+
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
