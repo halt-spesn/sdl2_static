@@ -1,6 +1,6 @@
-# SDL2 Shared Libraries for Android ARM64
+# SDL2 Shared Libraries for Android
 
-This repository provides automated builds of SDL2 and related libraries as shared libraries for Android ARM64 (arm64-v8a) architecture in JNI-compatible directory structure.
+This repository provides automated builds of SDL2 and related libraries as shared libraries for Android (arm64-v8a and x86_64) architectures in JNI-compatible directory structure.
 
 ## Built Libraries
 
@@ -13,18 +13,18 @@ The GitHub Actions workflow builds the following libraries as shared `.so` files
 
 ## Target Platform
 
-- **Architecture**: ARM64-v8a
+- **Architectures**: ARM64-v8a, x86_64
 - **Android API Level**: 21 (Android 5.0+)
 - **NDK Version**: r26c or later (SDL2 2.32.10+ is compatible with NDK r26 and r27+)
 - **Library Type**: Shared (.so)
 
 ## Output Structure
 
-The build produces libraries organized in a JNI-compatible directory structure:
+The build produces libraries organized in a JNI-compatible directory structure for each architecture:
 
 ```
 jniLibs/
-├── arm64-v8a/
+├── arm64-v8a/  (or x86_64/)
 │   ├── libSDL2.so
 │   ├── libSDL2_image.so
 │   ├── libSDL2_mixer.so
@@ -40,19 +40,49 @@ jniLibs/
 
 1. Go to the [Actions](../../actions) tab
 2. Select the latest successful workflow run
-3. Download the artifacts:
-   - `sdl2-android-arm64-jni.tar.gz` - Complete package with JNI libraries and headers
-   - `sdl2-android-arm64-jniLibs` - JNI directory structure
+3. Download the artifacts for your target architecture:
+   - **ARM64**: `sdl2-android-arm64-v8a-jni.tar.gz` - Complete package with JNI libraries and headers
+   - **x86_64**: `sdl2-android-x86_64-jni.tar.gz` - Complete package with JNI libraries and headers
+   - Or download the `sdl2-android-{arch}-jniLibs` directory artifacts
 
 ### Extract Libraries
 
 ```bash
-tar -xzf sdl2-android-arm64-jni.tar.gz
+# For ARM64
+tar -xzf sdl2-android-arm64-v8a-jni.tar.gz
+
+# For x86_64
+tar -xzf sdl2-android-x86_64-jni.tar.gz
 ```
 
 This will extract:
-- `jniLibs/arm64-v8a/` - Shared library files (*.so)
+- `jniLibs/arm64-v8a/` (or `jniLibs/x86_64/`) - Shared library files (*.so)
 - `jniLibs/include/` - Header files
+
+### Using Multiple Architectures
+
+To support multiple architectures in your Android project, download and extract both architecture packages, then merge them:
+
+```bash
+# Extract ARM64
+tar -xzf sdl2-android-arm64-v8a-jni.tar.gz
+mv jniLibs jniLibs-temp
+
+# Extract x86_64
+tar -xzf sdl2-android-x86_64-jni.tar.gz
+
+# Merge architectures (copy ARM64 into the same structure)
+cp -r jniLibs-temp/arm64-v8a jniLibs/
+rm -rf jniLibs-temp
+
+# Now jniLibs contains both architectures:
+# jniLibs/
+# ├── arm64-v8a/
+# │   └── *.so files
+# ├── x86_64/
+# │   └── *.so files
+# └── include/
+```
 
 ### Using in Your Android Project
 
@@ -69,8 +99,8 @@ Android will automatically load the `.so` files from the appropriate architectur
 #### Option 2: CMakeLists.txt Example
 
 ```cmake
-# Set the path to SDL2 libraries
-set(SDL2_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/arm64-v8a")
+# Set the path to SDL2 libraries (adjust path for your architecture)
+set(SDL2_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/${ANDROID_ABI}")
 set(SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/include")
 
 # Add include directories
@@ -100,28 +130,28 @@ LOCAL_PATH := $(call my-dir)
 # SDL2
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2
-LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2.so
+LOCAL_SRC_FILES := path/to/jniLibs/$(TARGET_ARCH_ABI)/libSDL2.so
 LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
 include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_image
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_image
-LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_image.so
+LOCAL_SRC_FILES := path/to/jniLibs/$(TARGET_ARCH_ABI)/libSDL2_image.so
 LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
 include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_mixer
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_mixer
-LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_mixer.so
+LOCAL_SRC_FILES := path/to/jniLibs/$(TARGET_ARCH_ABI)/libSDL2_mixer.so
 LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
 include $(PREBUILT_SHARED_LIBRARY)
 
 # SDL2_ttf
 include $(CLEAR_VARS)
 LOCAL_MODULE := SDL2_ttf
-LOCAL_SRC_FILES := path/to/jniLibs/arm64-v8a/libSDL2_ttf.so
+LOCAL_SRC_FILES := path/to/jniLibs/$(TARGET_ARCH_ABI)/libSDL2_ttf.so
 LOCAL_EXPORT_C_INCLUDES := path/to/jniLibs/include
 include $(PREBUILT_SHARED_LIBRARY)
 
@@ -139,14 +169,17 @@ include $(BUILD_SHARED_LIBRARY)
 To trigger a build manually:
 
 1. Go to the [Actions](../../actions) tab
-2. Select "Build SDL2 Shared Libraries for Android ARM64" workflow
+2. Select "Build SDL2 Shared Libraries for Android" workflow
 3. Click "Run workflow"
 4. Select the branch and click "Run workflow"
 
+The workflow will automatically build for both arm64-v8a and x86_64 architectures in parallel.
+
 ## Customization
 
-To change library versions or build settings, edit `.github/workflows/build-android-arm64.yml`:
+To change library versions, architectures, or build settings, edit `.github/workflows/build-android-arm64.yml`:
 
+- `matrix.abi` - Target architectures (currently: arm64-v8a, x86_64)
 - `SDL2_VERSION` - SDL2 version
 - `SDL2_IMAGE_VERSION` - SDL2_image version
 - `SDL2_MIXER_VERSION` - SDL2_mixer version

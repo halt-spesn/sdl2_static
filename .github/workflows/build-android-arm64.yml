@@ -1,4 +1,4 @@
-name: Build SDL2 Shared Libraries for Android ARM64
+name: Build SDL2 Shared Libraries for Android
 
 on:
   push:
@@ -10,6 +10,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        abi: [arm64-v8a, x86_64]
 
     permissions:
       contents: read
@@ -22,7 +26,7 @@ jobs:
       SDL2_IMAGE_VERSION: 2.8.8
       SDL2_MIXER_VERSION: 2.8.1
       SDL2_TTF_VERSION: 2.24.0
-      ANDROID_ABI: arm64-v8a
+      ANDROID_ABI: ${{ matrix.abi }}
       ANDROID_API_LEVEL: 21
 
     steps:
@@ -204,18 +208,18 @@ jobs:
 
     - name: Package libraries
       run: |
-        tar -czf sdl2-android-arm64-jni.tar.gz jniLibs/
+        tar -czf sdl2-android-${{ matrix.abi }}-jni.tar.gz jniLibs/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: sdl2-android-arm64-jni
-        path: sdl2-android-arm64-jni.tar.gz
+        name: sdl2-android-${{ matrix.abi }}-jni
+        path: sdl2-android-${{ matrix.abi }}-jni.tar.gz
         retention-days: 90
 
     - name: Upload library files
       uses: actions/upload-artifact@v4
       with:
-        name: sdl2-android-arm64-jniLibs
+        name: sdl2-android-${{ matrix.abi }}-jniLibs
         path: jniLibs/
         retention-days: 90
