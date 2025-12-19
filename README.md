@@ -20,11 +20,12 @@ The GitHub Actions workflow builds the following libraries as shared `.so` files
 
 ## Output Structure
 
-The build produces libraries organized in a JNI-compatible directory structure for each architecture:
+Each architecture build produces libraries organized in a JNI-compatible directory structure:
 
+**Individual Architecture Package:**
 ```
 jniLibs/
-├── arm64-v8a/  (or x86_64/)
+├── arm64-v8a/  (arm64 build) or x86_64/ (x86_64 build)
 │   ├── libSDL2.so
 │   ├── libSDL2_image.so
 │   ├── libSDL2_mixer.so
@@ -32,6 +33,17 @@ jniLibs/
 └── include/
     ├── SDL2/
     └── ...
+```
+
+**Combined Multi-Architecture (after merging):**
+```
+jniLibs/
+├── arm64-v8a/
+│   └── *.so files
+├── x86_64/
+│   └── *.so files
+└── include/
+    └── shared headers
 ```
 
 ## Usage
@@ -55,7 +67,7 @@ tar -xzf sdl2-android-arm64-v8a-jni.tar.gz
 tar -xzf sdl2-android-x86_64-jni.tar.gz
 ```
 
-This will extract:
+Each package extracts to:
 - `jniLibs/arm64-v8a/` (or `jniLibs/x86_64/`) - Shared library files (*.so)
 - `jniLibs/include/` - Header files
 
@@ -99,7 +111,8 @@ Android will automatically load the `.so` files from the appropriate architectur
 #### Option 2: CMakeLists.txt Example
 
 ```cmake
-# Set the path to SDL2 libraries (adjust path for your architecture)
+# Set the path to SDL2 libraries
+# ${ANDROID_ABI} is automatically set by CMake (e.g., "arm64-v8a" or "x86_64")
 set(SDL2_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/${ANDROID_ABI}")
 set(SDL2_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/path/to/jniLibs/include")
 
